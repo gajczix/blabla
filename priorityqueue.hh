@@ -36,21 +36,25 @@ class PriorityQueue {
 	// Metoda zwracająca true wtedy i tylko wtedy, gdy kolejka jest pusta [O(1)]
 	bool empty() const{
 		return values.empty();
-	}
+	}//NOTHROW
 
 	// Metoda zwracająca liczbę par (klucz, wartość) przechowywanych w kolejce
 	// [O(1)]
 	std::size_t size() const{ //TODO: poprawic na size_type
 		return values.size();
-	}
+	}//NOTHROW
 
 	// Metoda wstawiająca do kolejki parę o kluczu key i wartości value
 	// [O(log size())] (dopuszczamy możliwość występowania w kolejce wielu
 	// par o tym samym kluczu)
 	void insert(const K& key, const V& value){
-		auto it = values.emplace(value, key);
-		auto elem = &it->second;
-		iterators.emplace(elem, it);
+		try{
+			auto it = values.emplace(value, key);
+			auto elem = &it->second;
+			iterators.emplace(elem, it);
+		}catch(...){
+			//TODO: emplace się nie powiodło, co wtedy?
+		}
 	}
 	
 
@@ -58,9 +62,13 @@ class PriorityQueue {
 	// w kolejce [O(1)]; w przypadku wywołania którejś z tych metod na pustej
 	// strukturze powinien zostać zgłoszony wyjątek PriorityQueueEmptyException
 	const V& minValue() const{
+		if(values.empty())
+			throw PriorityQueueEmptyException;
 		return values.begin()->first;
 	}	
 	const V& maxValue() const{
+		if(values.empty())
+			throw PriorityQueueEmptyException;
 		return values.rbegin()->first;
 	}
 
@@ -69,18 +77,26 @@ class PriorityQueue {
 	// na pustej strukturze powinien zostać zgłoszony wyjątek
 	// PriorityQueueEmptyException
 	const K& minKey() const{
+		if(values.empty())
+			throw PriorityQueueEmptyException;
 		return values.begin()->second;
 	}
 	const K& maxKey() const{
+		if(values.empty())
+			throw PriorityQueueEmptyException;
 		return values.rbegin()->second;
 	}
 	private:
 	void deleteElem(const K& key){
-		K nowe = key;
-		K * wskaznik = &nowe;
-		auto it = iterators.find(wskaznik);
-		values.erase(it->second);
-		iterators.erase(it);
+		K nowe = key; //TODO: moze sie nie powiesc alokacja
+		K * wskaznik = &nowe; //TODO: moze nie byc miejsca na wskaznik
+		try{
+			auto it = iterators.find(wskaznik);
+			values.erase(it->second);
+			iterators.erase(it);
+		}catch(...){
+			//TODO: to tu się może stać?
+		}
 	}
 	public:
 	// Metody usuwające z kolejki jedną parę o odpowiednio najmniejszej lub
@@ -111,8 +127,8 @@ class PriorityQueue {
 	// [O(queue.size() * log (queue.size() + size()))]
 	void merge(PriorityQueue<K, V>& queue){
 		for(auto elem : queue.values){
-			this->insert(elem.second->first, elem.first);
-			queue.delete_elem(elem.second);
+			this->insert(elem.second, elem.first);
+			queue.deleteElem(elem.second);
 		}
 	}
 
