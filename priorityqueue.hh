@@ -7,6 +7,8 @@
 using namespace std;
 
 template <typename K>
+// TODO: potrzebna gwarancja bezpieczenstwa do poprawnego dzialania 
+// 		 swapa
 struct classcomp {
   bool operator() (const K * lhs, const K * rhs) const
   {return *lhs < *rhs;}
@@ -39,7 +41,13 @@ class PriorityQueue {
 
 	// Operator przypisania [O(queue.size()) dla użycia P = Q, a O(1) dla użycia
 	// P = move(Q)]
-	PriorityQueue<K, V>& operator=(PriorityQueue<K, V> queue);
+	PriorityQueue<K, V>& operator=(PriorityQueue<K, V>& queue){
+		PriorityQueue<K, V> temp(queue);
+		temp.swap(*this);
+		return *this;
+	}
+
+	PriorityQueue<K, V>& operator=(PriorityQueue<K, V>&& queue) = default;
 
 	// Metoda zwracająca true wtedy i tylko wtedy, gdy kolejka jest pusta [O(1)]
 	bool empty() const{
@@ -145,6 +153,7 @@ class PriorityQueue {
 	// Metoda zamieniającą zawartość kolejki z podaną kolejką queue (tak jak
 	// większość kontenerów w bibliotece standardowej) [O(1)]
 	void swap(PriorityQueue<K, V>& queue){
-		
+		this->values.swap(queue.values);
+		this->iterators.swap(queue.iterators);
 	}
 };
