@@ -2,7 +2,7 @@
 #include <exception>
 #include <cassert>
 
-#include "priorityqueue_exp2.h"
+#include "priorityqueue.hh"
 
 
 int main() {
