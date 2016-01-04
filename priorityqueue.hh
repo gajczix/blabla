@@ -12,6 +12,11 @@ struct classcomp {
   {return *lhs < *rhs;}
 };
 
+class PriorityQueueEmptyException : public exception{
+	virtual const char* what() const throw(){
+		return "PriorityQueue is empty";
+	}
+};
 
 template <typename K, typename V> 
 class PriorityQueue {
@@ -56,6 +61,7 @@ class PriorityQueue {
 			auto elem = &it->second;
 			iterators.emplace(elem, it);
 		}catch(...){
+			throw;
 			//TODO: emplace się nie powiodło, co wtedy?
 		}
 	}
@@ -66,12 +72,12 @@ class PriorityQueue {
 	// strukturze powinien zostać zgłoszony wyjątek PriorityQueueEmptyException
 	const V& minValue() const{
 		if(values.empty())
-			throw PriorityQueueEmptyException;
+			throw PriorityQueueEmptyException();
 		return values.begin()->first;
 	}	
 	const V& maxValue() const{
 		if(values.empty())
-			throw PriorityQueueEmptyException;
+			throw PriorityQueueEmptyException();
 		return values.rbegin()->first;
 	}
 
@@ -81,12 +87,12 @@ class PriorityQueue {
 	// PriorityQueueEmptyException
 	const K& minKey() const{
 		if(values.empty())
-			throw PriorityQueueEmptyException;
+			throw PriorityQueueEmptyException();
 		return values.begin()->second;
 	}
 	const K& maxKey() const{
 		if(values.empty())
-			throw PriorityQueueEmptyException;
+			throw PriorityQueueEmptyException();
 		return values.rbegin()->second;
 	}
 	private:
@@ -98,6 +104,7 @@ class PriorityQueue {
 			values.erase(it->second);
 			iterators.erase(it);
 		}catch(...){
+			throw;
 			//TODO: to tu się może stać?
 		}
 	}

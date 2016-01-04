@@ -8,7 +8,12 @@
 int main() {
     PriorityQueue<int, int> P;
     assert(P.empty());
-
+    try{
+	P.maxValue();
+	}
+    catch( const PriorityQueueEmptyException& e ){
+	cout << "ok" << endl;
+    }
 	P.insert(3, 24);
     P.insert(1, 42);
     P.insert(2, 13);
