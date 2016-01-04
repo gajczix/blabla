@@ -36,8 +36,25 @@ int main() {
     assert(S.maxValue() == 42);
     assert(S.minKey() == 2);
     assert(S.minValue() == 14);
-	
-	
+
+	P.insert(7, 15);
+	P.insert(2, 37);
+	P.insert(6, 25);
+
+	P.swap(X);
+
+    assert(X.size() == 3);
+    assert(X.maxKey() == 2);
+    assert(X.maxValue() == 37);
+    assert(X.minKey() == 7);
+    assert(X.minValue() == 15);
+
+    assert(P.size() == 3);
+    assert(P.maxKey() == 1);
+    assert(P.maxValue() == 42);
+    assert(P.minKey() == 2);
+    assert(P.minValue() == 13);
+
 	P.deleteMax();
     P.deleteMin();
     P.deleteMin();

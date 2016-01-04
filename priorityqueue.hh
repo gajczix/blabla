@@ -69,13 +69,13 @@ class PriorityQueue {
 	// w kolejce [O(1)]; w przypadku wywołania którejś z tych metod na pustej
 	// strukturze powinien zostać zgłoszony wyjątek PriorityQueueEmptyException
 	const V& minValue() const{
-		if(values.empty())
-			throw PriorityQueueEmptyException;
+//		if(values.empty())
+//			throw PriorityQueueEmptyException;
 		return values.begin()->first;
 	}	
 	const V& maxValue() const{
-		if(values.empty())
-			throw PriorityQueueEmptyException;
+//		if(values.empty())
+//			throw PriorityQueueEmptyException;
 		return values.rbegin()->first;
 	}
 
@@ -84,13 +84,13 @@ class PriorityQueue {
 	// na pustej strukturze powinien zostać zgłoszony wyjątek
 	// PriorityQueueEmptyException
 	const K& minKey() const{
-		if(values.empty())
-			throw PriorityQueueEmptyException;
+//		if(values.empty())
+//			throw PriorityQueueEmptyException;
 		return values.begin()->second;
 	}
 	const K& maxKey() const{
-		if(values.empty())
-			throw PriorityQueueEmptyException;
+//		if(values.empty())
+//			throw PriorityQueueEmptyException;
 		return values.rbegin()->second;
 	}
 	private:
@@ -142,6 +142,7 @@ class PriorityQueue {
 	// Metoda zamieniającą zawartość kolejki z podaną kolejką queue (tak jak
 	// większość kontenerów w bibliotece standardowej) [O(1)]
 	void swap(PriorityQueue<K, V>& queue){
-		
+		this->values.swap(queue.values);
+		this->iterators.swap(queue.iterators);
 	}
 };
