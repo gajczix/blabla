@@ -2,7 +2,7 @@
 #include <exception>
 #include <cassert>
 
-#include "priorityqueue_exp2.h"
+#include "priorityqueue.hh"
 
 
 int main() {
@@ -13,8 +13,19 @@ int main() {
     P.insert(1, 42);
     P.insert(2, 13);
 
+	PriorityQueue<int, int> S = P;
+	PriorityQueue<int, int> X = std::move(S);
+
 	P.changeValue(2, 14);
 	
+    assert(X.size() == 3);
+    assert(X.maxKey() == 1);
+    assert(X.maxValue() == 42);
+    assert(X.minKey() == 2);
+    assert(X.minValue() == 13);
+
+	assert(S.size() == 0);
+
     assert(P.size() == 3);
     assert(P.maxKey() == 1);
     assert(P.maxValue() == 42);
