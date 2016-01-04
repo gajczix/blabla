@@ -24,10 +24,13 @@ class PriorityQueue {
 	PriorityQueue(){}
 
 	// Konstruktor kopiujący [O(queue.size())]
-	PriorityQueue(const PriorityQueue<K, V>& queue);
+	PriorityQueue(const PriorityQueue<K, V>& queue){
+		for (auto it = queue.values.begin(); it != queue.values.end(); it++)
+			this->insert(it->second, it->first);
+	}
 
 	// Konstruktor przenoszący [O(1)]
-	PriorityQueue(PriorityQueue<K, V>&& queue);
+	PriorityQueue(PriorityQueue<K, V>&& queue) = default;
 
 	// Operator przypisania [O(queue.size()) dla użycia P = Q, a O(1) dla użycia
 	// P = move(Q)]
