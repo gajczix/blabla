@@ -7,6 +7,8 @@
 using namespace std;
 
 template <typename K>
+// TODO: potrzebna gwarancja bezpieczenstwa do poprawnego dzialania 
+// 		 swapa
 struct classcomp {
   bool operator() (const K * lhs, const K * rhs) const
   {return *lhs < *rhs;}
@@ -35,7 +37,9 @@ class PriorityQueue {
 	// Operator przypisania [O(queue.size()) dla użycia P = Q, a O(1) dla użycia
 	// P = move(Q)]
 	PriorityQueue<K, V>& operator=(PriorityQueue<K, V>& queue){
-		return PriorityQueue<K, V>(queue);
+		PriorityQueue<K, V> temp(queue);
+		temp.swap(*this);
+		return *this;
 	}
 
 	PriorityQueue<K, V>& operator=(PriorityQueue<K, V>&& queue) = default;
