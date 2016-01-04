@@ -2,8 +2,7 @@
 #include <cstdlib>
 #include <utility>
 #include <cassert>
-#include <iostream>
-
+#include <exception>
 using namespace std;
 
 template <typename K>
@@ -14,12 +13,17 @@ struct classcomp {
   {return *lhs < *rhs;}
 };
 
-class PriorityQueueEmptyException : public exception{
+struct PriorityQueueEmptyException : public exception{
 	virtual const char* what() const throw(){
 		return "PriorityQueue is empty";
 	}
 };
 
+struct PriorityQueueNotFoundException : public exception{
+	virtual const char* what() const throw(){
+		return "This element does not exist";
+	}
+};
 template <typename K, typename V> 
 class PriorityQueue {
 	
@@ -104,17 +108,21 @@ class PriorityQueue {
 		return values.rbegin()->second;
 	}
 	private:
-	void deleteElem(const K& key){
+	bool deleteElem(const K& key){
 		K nowe = key; //TODO: moze sie nie powiesc alokacja
 		K * wskaznik = &nowe; //TODO: moze nie byc miejsca na wskaznik
 		try{
 			auto it = iterators.find(wskaznik);
+			if(it == iterators.end()){
+				return false;
+			}
 			values.erase(it->second);
 			iterators.erase(it);
 		}catch(...){
 			throw;
 			//TODO: to tu się może stać?
 		}
+		return true;
 	}
 	public:
 	// Metody usuwające z kolejki jedną parę o odpowiednio najmniejszej lub
@@ -136,7 +144,8 @@ class PriorityQueue {
 	// PriorityQueueNotFoundException(); w przypadku kiedy w kolejce jest kilka par
 	// o kluczu key, zmienia wartość w dowolnie wybranej parze o podanym kluczu
 	void changeValue(const K& key, const V& value){
-		deleteElem(key);
+		if(!deleteElem(key))
+			throw PriorityQueueNotFoundException();
 		this->insert(key, value);
 	}
 	
@@ -156,4 +165,16 @@ class PriorityQueue {
 		this->values.swap(queue.values);
 		this->iterators.swap(queue.iterators);
 	}
+	template <typename S, typename T>
+	friend bool operator==(const PriorityQueue<S,T> &lhs, const PriorityQueue<S,T> &rhs);
+	template <typename S, typename T>
+	friend bool operator<(const PriorityQueue<S,T> &lhs, const PriorityQueue<S,T> &rhs);
 };
+template <typename K, typename V>
+bool operator==(const PriorityQueue<K,V> &lhs, const PriorityQueue<K,V> &rhs){
+	return lhs.values == rhs.values;
+}
+template <typename K, typename V>
+bool operator<(const PriorityQueue<K,V> &lhs, const PriorityQueue<K,V> &rhs){
+	return lhs.values < rhs.values;
+}
