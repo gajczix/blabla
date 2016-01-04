@@ -34,7 +34,11 @@ class PriorityQueue {
 
 	// Operator przypisania [O(queue.size()) dla użycia P = Q, a O(1) dla użycia
 	// P = move(Q)]
-	PriorityQueue<K, V>& operator=(PriorityQueue<K, V> queue);
+	PriorityQueue<K, V>& operator=(PriorityQueue<K, V>& queue){
+		return PriorityQueue<K, V>(queue);
+	}
+
+	PriorityQueue<K, V>& operator=(PriorityQueue<K, V>&& queue) = default;
 
 	// Metoda zwracająca true wtedy i tylko wtedy, gdy kolejka jest pusta [O(1)]
 	bool empty() const{
