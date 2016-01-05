@@ -6,21 +6,19 @@
 using namespace std;
 
 template <typename K>
-// TODO: potrzebna gwarancja bezpieczenstwa do poprawnego dzialania 
-// 		 swapa
 struct classcomp {
   bool operator() (const K * lhs, const K * rhs) const
   {return *lhs < *rhs;}
 };
 
 struct PriorityQueueEmptyException : public exception{
-	virtual const char* what() const throw(){
+	virtual const char* what() const noexcept {
 		return "PriorityQueue is empty";
 	}
 };
 
 struct PriorityQueueNotFoundException : public exception{
-	virtual const char* what() const throw(){
+	virtual const char* what() const noexcept {
 		return "This element does not exist";
 	}
 };
@@ -28,7 +26,7 @@ template <typename K, typename V>
 class PriorityQueue {
 	
 	std::multimap <V, K> values;
-	std::map <K*, typename std::multimap <V, K>::iterator , classcomp<K> > iterators;
+	std::multimap <K const *, typename std::multimap <V, K>::const_iterator , classcomp<K> > iterators;
 	
 	public:
 	// Konstruktor bezparametrowy tworzący pustą kolejkę [O(1)]
@@ -36,8 +34,9 @@ class PriorityQueue {
 
 	// Konstruktor kopiujący [O(queue.size())]
 	PriorityQueue(const PriorityQueue<K, V>& queue){
-		for (auto it = queue.values.begin(); it != queue.values.end(); it++)
+		for(auto it = queue.values.begin(); it != queue.values.end(); it++){
 			this->insert(it->second, it->first);
+		}
 	}
 
 	// Konstruktor przenoszący [O(1)]
@@ -68,13 +67,13 @@ class PriorityQueue {
 	// [O(log size())] (dopuszczamy możliwość występowania w kolejce wielu
 	// par o tym samym kluczu)
 	void insert(const K& key, const V& value){
+		auto const it = values.emplace(value, key);
+		auto elem = &it->second;
 		try{
-			auto it = values.emplace(value, key);
-			auto elem = &it->second;
 			iterators.emplace(elem, it);
 		}catch(...){
+			values.erase(it);
 			throw;
-			//TODO: emplace się nie powiodło, co wtedy?
 		}
 	}
 	
@@ -109,19 +108,12 @@ class PriorityQueue {
 	}
 	private:
 	bool deleteElem(const K& key){
-		K nowe = key; //TODO: moze sie nie powiesc alokacja
-		K * wskaznik = &nowe; //TODO: moze nie byc miejsca na wskaznik
-		try{
-			auto it = iterators.find(wskaznik);
-			if(it == iterators.end()){
-				return false;
-			}
-			values.erase(it->second);
-			iterators.erase(it);
-		}catch(...){
-			throw;
-			//TODO: to tu się może stać?
+		auto const it = iterators.find(&key);
+		if(it == iterators.end()){
+			return false;
 		}
+		values.erase(it->second);
+		iterators.erase(it);
 		return true;
 	}
 	public:
