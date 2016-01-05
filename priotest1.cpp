@@ -4,6 +4,8 @@
 #include <time.h>
 #include <stdlib.h>
 
+#include "priorityqueue.hh"
+
 struct randomException: public std::exception{
 	virtual const char* what() const noexcept {
 		return "Random exception";
@@ -14,18 +16,12 @@ class qtest {
 	public:
 	int l = 1;
 	int r = rand() % 100;	
-	qtest() {
-		secret();
-	}
+
+	qtest() {}
+
 	bool secret() const {
-		try {
-			if (rand() % 2)
-				throw randomException();
-		}
-		catch (...) {
-			std::cout << "woops" << std::endl;
-			return 0;
-		}
+		if (rand() % 2)
+			throw randomException();
 		return 1;
 	}
 	friend bool operator<(const qtest& lhs, const qtest& rhs);
@@ -40,7 +36,6 @@ class qtest2 {
 	qtest2() {
 		p = new int;
 		*p = rand() % 100;
-		secret();
 	}
 
 	~qtest2() {
@@ -49,20 +44,11 @@ class qtest2 {
 	}
 
 	bool secret() const {
-		try {
-			if (rand() % 2)
-				throw randomException();
-		}
-		catch (...) {
-			std::cout << "woopi" << std::endl;
-			if (!p)
-				delete p;
-			return 0;
-		}
+		if (rand() % 2)
+			throw randomException();
 		return 1;
 	}
 	friend bool operator<(const qtest2& lhs, const qtest2& rhs);
-		
 };
 
 bool operator<(const qtest2& lhs, const qtest2& rhs) {
@@ -91,13 +77,40 @@ bool operator==(const qtest& lhs, const qtest& rhs) {
 
 int main() {
 	srand(time(NULL));
-	qtest elo;
-	qtest mordo;
-	qtest2 dupa;
-	qtest2 zbita;
-	if (dupa < zbita)
-		std::cout << "xd" << std::endl;
-	if (elo < mordo)
-		std::cout << "wops x2" << std::endl;
+	qtest asd0;
+	qtest asd1;
+	qtest asd2;
+	qtest asd3;
+	qtest asd4;
+	qtest2 qwe0;
+	qtest2 qwe1;
+	qtest2 qwe2;
+	qtest2 qwe3;
+	qtest2 qwe4;
+
+	PriorityQueue<qtest, qtest2> kolejka1;
+	PriorityQueue<qtest, qtest2> kolejka2;
+
+	assert(kolejka1.empty());
+	kolejka1.insert(asd0, qwe0);
+	kolejka1.insert(asd1, qwe1);
+	kolejka1.insert(asd2, qwe2);
+
+	kolejka2.insert(asd3, qwe3);
+	kolejka2.insert(asd4, qwe4);
+
+	assert(kolejka1.size() == 3);
+	assert(kolejka2.size() == 2);
+
+	if (kolejka1 < kolejka2) 
+		std::cout << "mniejsza" << std::endl;
+
+	kolejka1.deleteMax();
+	kolejka1.deleteMax();
+	kolejka1.deleteMax();
+	assert(kolejka1.empty());
+	kolejka2.deleteMin();
+	kolejka2.deleteMin();
+	assert(kolejka2.empty());
 	return 0;
 }
