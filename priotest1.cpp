@@ -15,12 +15,12 @@ struct randomException: public std::exception{
 class qtest {
 	public:
 	int l = 1;
-	int r = rand() % 100;	
 
 	qtest() {}
+	qtest(int i) { l = i; }
 
 	bool secret() const {
-		if (rand() % 2)
+		if (l % 2 == 0)
 			throw randomException();
 		return 1;
 	}
@@ -32,19 +32,18 @@ class qtest {
 class qtest2 {
 	public: 
 	int *p;
-	int r = rand() & 100;
-	qtest2() {
+
+	qtest2(int i) {
 		p = new int;
-		*p = rand() % 100;
+		*p = i;
 	}
 
 	~qtest2() {
-		if (!p)
-			delete p;
+		delete p;
 	}
 
 	bool secret() const {
-		if (rand() % 2)
+		if (*p % 2 == 0)
 			throw randomException();
 		return 1;
 	}
@@ -53,40 +52,32 @@ class qtest2 {
 
 bool operator<(const qtest2& lhs, const qtest2& rhs) {
 	lhs.secret();
-	rhs.secret();
-	if (!lhs.p && !rhs.p)
-		return true;
-	if (!lhs.p)
-		return false;
-	if (!rhs.p)
-		return true;
 	return *lhs.p < *rhs.p;
 }
 
 bool operator<(const qtest& lhs, const qtest& rhs) {
 	lhs.secret();
-	rhs.secret();
-	return lhs.r < rhs.r;	
+	return lhs.l < rhs.l;	
 }
 
 bool operator==(const qtest& lhs, const qtest& rhs) {
-	lhs.secret();
 	rhs.secret();
-	return lhs.r == rhs.r;
+	return lhs.l == rhs.l;
 }
 
 int main() {
 	srand(time(NULL));
-	qtest asd0;
-	qtest asd1;
-	qtest asd2;
-	qtest asd3;
-	qtest asd4;
-	qtest2 qwe0;
-	qtest2 qwe1;
-	qtest2 qwe2;
-	qtest2 qwe3;
-	qtest2 qwe4;
+	qtest asd0(0);
+	qtest asd1(1);
+	qtest asd2(2);
+	qtest asd3(3);
+	qtest asd4(4);
+	
+	qtest2 qwe0(0);
+	qtest2 qwe1(1);
+	qtest2 qwe2(2);
+	qtest2 qwe3(3);
+	qtest2 qwe4(4);
 
 	PriorityQueue<qtest, qtest2> kolejka1;
 	PriorityQueue<qtest, qtest2> kolejka2;
@@ -94,23 +85,13 @@ int main() {
 	assert(kolejka1.empty());
 	kolejka1.insert(asd0, qwe0);
 	kolejka1.insert(asd1, qwe1);
-	kolejka1.insert(asd2, qwe2);
-
-	kolejka2.insert(asd3, qwe3);
-	kolejka2.insert(asd4, qwe4);
-
-	assert(kolejka1.size() == 3);
-	assert(kolejka2.size() == 2);
-
-	if (kolejka1 < kolejka2) 
-		std::cout << "mniejsza" << std::endl;
-
-	kolejka1.deleteMax();
-	kolejka1.deleteMax();
-	kolejka1.deleteMax();
-	assert(kolejka1.empty());
-	kolejka2.deleteMin();
-	kolejka2.deleteMin();
-	assert(kolejka2.empty());
+	kolejka1.insert(asd3, qwe1);
+	try {
+		kolejka1.insert(asd2, qwe2);
+	}
+	catch(...){
+		for (auto it: kolejka1.values)
+			std::cout << *it.first.p << " " << it.second.l << std::endl;
+	}	
 	return 0;
 }
