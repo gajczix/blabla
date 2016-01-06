@@ -25,6 +25,7 @@ struct PriorityQueueNotFoundException : public exception{
 template <typename K, typename V> 
 class PriorityQueue {
 	
+	public:
 	std::multimap <V, K> values;
 	std::multimap <K const *, typename std::multimap <V, K>::const_iterator , classcomp<K> > iterators;
 	
@@ -116,6 +117,13 @@ class PriorityQueue {
 		iterators.erase(it);
 		return true;
 	}
+
+	void clean() {
+		values.clear();
+		iterators.clear();
+	}
+	// NO-THROW
+	
 	public:
 	// Metody usuwające z kolejki jedną parę o odpowiednio najmniejszej lub
 	// największej wartości [O(log size())]
@@ -147,8 +155,8 @@ class PriorityQueue {
 	void merge(PriorityQueue<K, V>& queue){
 		for(auto elem : queue.values){
 			this->insert(elem.second, elem.first);
-			queue.deleteElem(elem.second);
 		}
+		queue.clean();
 	}
 
 	// Metoda zamieniającą zawartość kolejki z podaną kolejką queue (tak jak
@@ -157,6 +165,7 @@ class PriorityQueue {
 		this->values.swap(queue.values);
 		this->iterators.swap(queue.iterators);
 	}
+
 	template <typename S, typename T>
 	friend bool operator==(const PriorityQueue<S,T> &lhs, const PriorityQueue<S,T> &rhs);
 	template <typename S, typename T>

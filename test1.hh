@@ -35,6 +35,7 @@ struct PriorityQueueNotFoundException : public std::exception{
 template <typename K, typename V> 
 struct  PriorityQueue {//TODO: zmienic na class
 	
+	public:
 	std::multimap <V, K> values;
 	std::multimap <K const *, typename std::multimap <V, K>::const_iterator , classcomp<K> > iterators;
 	std::multiset < std::pair<K const *, V const *> , classcomp2<K,V> > ordered;
@@ -143,6 +144,12 @@ struct  PriorityQueue {//TODO: zmienic na class
 		iterators.erase(it);
 		return true;
 	}
+	void clean() {
+		values.clear();
+		iterators.clear();
+		ordered.clear();
+	}
+	// no-throw
 	public:
 	// Metody usuwające z kolejki jedną parę o odpowiednio najmniejszej lub
 	// największej wartości [O(log size())]
@@ -175,9 +182,7 @@ struct  PriorityQueue {//TODO: zmienic na class
 		for(auto elem : queue.values){ //TODO: to jest niebezpieczne!
 			this->insert(elem.second, elem.first);
 		}
-		queue.values.clear();
-		queue.ordered.clear();
-		queue.iterators.clear();
+		queue.clean();
 	}
 
 	// Metoda zamieniającą zawartość kolejki z podaną kolejką queue (tak jak
