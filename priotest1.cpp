@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <set>
 
-#include "priorityqueue.hh"
+#include "test1.hh"
 
 struct randomException: public std::exception{
 	virtual const char* what() const noexcept {
@@ -72,7 +72,7 @@ bool operator<(const qtest& lhs, const qtest& rhs) {
 }
 
 bool operator==(const qtest& lhs, const qtest& rhs) {
-	rhs.secret();
+	lhs.secret();
 	return lhs.l == rhs.l;
 }
 
@@ -94,17 +94,57 @@ int main() {
 
 	PriorityQueue<qtest, qtest2> kolejka1;
 	PriorityQueue<qtest, qtest2> kolejka2;
+	PriorityQueue<qtest, qtest2> kolejka3;
+	PriorityQueue<qtest, qtest2> kolejka4;
 
 	kolejka1.insert(asd0, qwe0);
 	kolejka1.insert(asd1, qwe1);
-	kolejka2.insert(asd3, qwe3);
 	kolejka1.insert(asd3, qwe3);
+	kolejka2.insert(asd5, qwe5);
+	kolejka2.insert(asd3, qwe3);
+
+	try {
+		kolejka1.insert(asd2, qwe2);
+	}
+	catch(...) {
+		std::cout << "Error przy insercie" << std::endl;
+		for (auto it: kolejka1.values)
+			std::cout << *it.first.p << " " << it.second.l << std::endl;
+		std::cout << "Rozmiar iterators: " <<  kolejka1.iterators.size() << std::endl;
+		std::cout << "Ordered: " <<  kolejka1.ordered.size() << std::endl;
+	}
+
 	try {
 		kolejka2.merge(kolejka1);
 	}
-	catch(...){
+	catch(...) {
+		std::cout << "Error przy merge" << std::endl;
 		for (auto it: kolejka1.values)
 			std::cout << *it.first.p << " " << it.second.l << std::endl;
+		std::cout << "Rozmiar iterators: " <<  kolejka1.iterators.size() << std::endl;
+		std::cout << "Ordered: " <<  kolejka1.ordered.size() << std::endl;
 	}
+
+	try {
+		kolejka1.changeValue(asd0, qwe5);
+	}
+	catch(...) {
+		std::cout << "Error przy changeValue" << std::endl;
+		for (auto it: kolejka1.values)
+			std::cout << *it.first.p << " " << it.second.l << std::endl;
+		std::cout << "Rozmiar iterators: " <<  kolejka1.iterators.size() << std::endl;
+		std::cout << "Ordered: " <<  kolejka1.ordered.size() << std::endl;
+	}
+
+	kolejka3.insert(asd1, qwe1);
+	kolejka3.insert(asd3, qwe3);
+	kolejka3.insert(asd5, qwe5);
+	kolejka4.insert(asd3, qwe3);
+	kolejka3.merge(kolejka4);
+	assert(kolejka4.empty());
+	assert(kolejka4.values.size() == 0);
+	assert(kolejka4.iterators.size() == 0);
+	assert(kolejka4.ordered.size() == 0);
+	
 	return 0;
 }
