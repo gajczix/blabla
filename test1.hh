@@ -14,9 +14,9 @@ struct classcomp {
 
 template <typename K, typename V>
 struct classcomp2 {
-  bool operator() (const std::pair<K const *, V const *> lhs, const std::pair<K const *, V const *> rhs) const
-  {if(*lhs.first == *rhs.first)
-	return *lhs.second < *rhs.second;
+  bool operator() (const std::pair<K const *, V const *> lhs, const std::pair<K const *, V const *> rhs) const{
+  	if(*lhs.first == *rhs.first)
+		return *lhs.second < *rhs.second;
 	return *lhs.first < *rhs.first;
   }
 };
@@ -33,7 +33,7 @@ struct PriorityQueueNotFoundException : public std::exception{
 	}
 };
 template <typename K, typename V> 
-class PriorityQueue {
+struct  PriorityQueue {//TODO: zmienic na class
 	
 	std::multimap <V, K> values;
 	std::multimap <K const *, typename std::multimap <V, K>::const_iterator , classcomp<K> > iterators;
@@ -53,6 +53,11 @@ class PriorityQueue {
 	// Konstruktor przenoszący [O(1)]
 	PriorityQueue(PriorityQueue<K, V>&& queue) = default;
 
+	~PriorityQueue(){
+		ordered.clear();
+		values.clear();
+		iterators.clear();
+	}
 	// Operator przypisania [O(queue.size()) dla użycia P = Q, a O(1) dla użycia
 	// P = move(Q)]
 	PriorityQueue<K, V>& operator=(PriorityQueue<K, V>& queue){
@@ -79,12 +84,19 @@ class PriorityQueue {
 	// par o tym samym kluczu)
 	void insert(const K& key, const V& value){
 		auto const it = values.emplace(value, key);
-		ordered.insert(std::pair<K const *, V const *>(&it->second, &it->first));
+		typename std::multiset<std::pair<K const *, V const *> >::const_iterator it2;
+		try{
+			it2 = ordered.emplace(&it->second, &it->first);
+		}catch(...){
+			values.erase(it);
+			throw;
+		}
 		auto elem = &it->second;
 		try{
 			iterators.emplace(elem, it);
 		}catch(...){
 			values.erase(it);
+			ordered.erase(it2);
 			throw;
 		}
 	}
@@ -124,7 +136,7 @@ class PriorityQueue {
 		if(it == iterators.end()){
 			return false;
 		}
-		auto const it2 = ordered.find(std::pair<K const *, V const *>(&key, &it->second->first));
+		auto const it2 = ordered.find(std::make_pair(&key, &it->second->first));
 		assert(it2 != ordered.end());
 		ordered.erase(it2);
 		values.erase(it->second);
@@ -162,8 +174,10 @@ class PriorityQueue {
 	void merge(PriorityQueue<K, V>& queue){
 		for(auto elem : queue.values){ //TODO: to jest niebezpieczne!
 			this->insert(elem.second, elem.first);
-			queue.deleteElem(elem.second);
 		}
+		queue.values.clear();
+		queue.ordered.clear();
+		queue.iterators.clear();
 	}
 
 	// Metoda zamieniającą zawartość kolejki z podaną kolejką queue (tak jak
@@ -200,6 +214,7 @@ bool operator<(const PriorityQueue<K,V> &lhs, const PriorityQueue<K,V> &rhs){
 	}
 	return lhs.size() < rhs.size();
 }
+//TODO: reszta porownan
 template <typename K, typename V>
 void swap(PriorityQueue<K,V> & lhs, PriorityQueue<K,V> & rhs){
 	lhs.swap(rhs);
