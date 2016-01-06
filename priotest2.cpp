@@ -2,7 +2,7 @@
 #include <exception>
 #include <cassert>
 
-#include "priorityqueue.hh"
+#include "test1.hh"
 
 PriorityQueue<int, int> f(PriorityQueue<int, int> q)
 {

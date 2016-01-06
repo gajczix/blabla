@@ -46,9 +46,11 @@ struct  PriorityQueue {//TODO: zmienic na class
 
 	// Konstruktor kopiujący [O(queue.size())]
 	PriorityQueue(const PriorityQueue<K, V>& queue){
+		PriorityQueue<K, V> temp;
 		for(auto it = queue.values.begin(); it != queue.values.end(); it++){
-			this->insert(it->second, it->first); //TODO: niebezpieczne!
+			temp.insert(it->second, it->first);
 		}
+		this->swap(temp);
 	}
 
 	// Konstruktor przenoszący [O(1)]
@@ -76,7 +78,7 @@ struct  PriorityQueue {//TODO: zmienic na class
 
 	// Metoda zwracająca liczbę par (klucz, wartość) przechowywanych w kolejce
 	// [O(1)]
-	std::size_t size() const{ //TODO: poprawic na size_type
+	std::size_t size() const{
 		return values.size();
 	}//NOTHROW
 
@@ -85,7 +87,7 @@ struct  PriorityQueue {//TODO: zmienic na class
 	// par o tym samym kluczu)
 	void insert(const K& key, const V& value){
 		auto const it = values.emplace(value, key);
-		typename std::multiset<std::pair<K const *, V const *> >::const_iterator it2;
+		auto it2 = ordered.begin();
 		try{
 			it2 = ordered.emplace(&it->second, &it->first);
 		}catch(...){
@@ -180,7 +182,7 @@ struct  PriorityQueue {//TODO: zmienic na class
 	// [O(queue.size() * log (queue.size() + size()))]
 	void merge(PriorityQueue<K, V>& queue){
 		for(auto elem : queue.values){ //TODO: to jest niebezpieczne!
-			this->insert(elem.second, elem.first);
+			this->insert(elem.second, elem.first);	
 		}
 		queue.clean();
 	}
@@ -196,12 +198,20 @@ struct  PriorityQueue {//TODO: zmienic na class
 	friend bool operator==(const PriorityQueue<S,T> &lhs, const PriorityQueue<S,T> &rhs);
 	template <typename S, typename T>
 	friend bool operator<(const PriorityQueue<S,T> &lhs, const PriorityQueue<S,T> &rhs);
+	template <typename S, typename T>
+	friend bool operator>(const PriorityQueue<S,T> &lhs, const PriorityQueue<S,T> &rhs);
+	template <typename S, typename T>
+	friend bool operator!=(const PriorityQueue<S,T> &lhs, const PriorityQueue<S,T> &rhs);
+	template <typename S, typename T>
+	friend bool operator<=(const PriorityQueue<S,T> &lhs, const PriorityQueue<S,T> &rhs);
+	template <typename S, typename T>
+	friend bool operator>=(const PriorityQueue<S,T> &lhs, const PriorityQueue<S,T> &rhs);
 	template<typename S, typename T>
 	friend void swap(PriorityQueue<S,T>& queue1, PriorityQueue<S,T>& queue2 );
 };
 template <typename K, typename V>
 bool operator==(const PriorityQueue<K,V> &lhs, const PriorityQueue<K,V> &rhs){
-	return lhs.values == rhs.values;
+	return lhs.ordered == rhs.ordered;
 }
 template <typename K, typename V> //TODO: ladniej!
 bool operator<(const PriorityQueue<K,V> &lhs, const PriorityQueue<K,V> &rhs){
@@ -219,7 +229,24 @@ bool operator<(const PriorityQueue<K,V> &lhs, const PriorityQueue<K,V> &rhs){
 	}
 	return lhs.size() < rhs.size();
 }
-//TODO: reszta porownan
+
+template <typename S, typename T>
+bool operator>(const PriorityQueue<S,T> &lhs, const PriorityQueue<S,T> &rhs){
+	return rhs < lhs;
+}
+template <typename S, typename T>
+bool operator!=(const PriorityQueue<S,T> &lhs, const PriorityQueue<S,T> &rhs){
+	return !(rhs == lhs);
+}
+template <typename S, typename T>
+bool operator<=(const PriorityQueue<S,T> &lhs, const PriorityQueue<S,T> &rhs){
+	return !(lhs > rhs);
+}
+template <typename S, typename T>
+bool operator>=(const PriorityQueue<S,T> &lhs, const PriorityQueue<S,T> &rhs){
+	return !(lhs < rhs);
+}
+
 template <typename K, typename V>
 void swap(PriorityQueue<K,V> & lhs, PriorityQueue<K,V> & rhs){
 	lhs.swap(rhs);
