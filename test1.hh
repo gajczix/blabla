@@ -209,10 +209,6 @@ struct  PriorityQueue {//TODO: zmienic na class
 	template<typename S, typename T>
 	friend void swap(PriorityQueue<S,T>& queue1, PriorityQueue<S,T>& queue2 );
 };
-template <typename K, typename V>
-bool operator==(const PriorityQueue<K,V> &lhs, const PriorityQueue<K,V> &rhs){
-	return lhs.ordered == rhs.ordered;
-}
 template <typename K, typename V> //TODO: ladniej!
 bool operator<(const PriorityQueue<K,V> &lhs, const PriorityQueue<K,V> &rhs){
 	auto i = lhs.ordered.begin();
@@ -228,6 +224,10 @@ bool operator<(const PriorityQueue<K,V> &lhs, const PriorityQueue<K,V> &rhs){
 		}
 	}
 	return lhs.size() < rhs.size();
+}
+template<typename S, typename T>
+bool operator==(const PriorityQueue<S,T> &lhs, const PriorityQueue<S,T> &rhs){
+	return !(rhs < lhs) && !(lhs < rhs);
 }
 
 template <typename S, typename T>

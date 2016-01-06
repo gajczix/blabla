@@ -11,7 +11,7 @@ clean:
 	@rm qtest 2>/dev/null || true
 
 pq:
-	$(CXX) $(CXXFLAGS) priotest2.cpp priorityqueue.hh -o test
+	$(CXX) $(CXXFLAGS) priotest2.cpp test1.hh -o test
 	
 test:
 	$(CXX) $(CXXFLAGS) priotest1.cpp -o qtest
