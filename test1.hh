@@ -1,24 +1,24 @@
 #include <map>
 #include <cstdlib>
 #include <utility>
-#include <cassert>
 #include <exception>
 #include<set>
-#include <iostream>
 
 template <typename K>
 struct classcomp {
-  bool operator() (const K * lhs, const K * rhs) const
-  {return *lhs < *rhs;}
+	bool operator() (const K * lhs, const K * rhs) const{
+		return *lhs < *rhs;
+	}
 };
 
 template <typename K, typename V>
 struct classcomp2 {
-  bool operator() (const std::pair<K const *, V const *> lhs, const std::pair<K const *, V const *> rhs) const{
-  	if(*lhs.first == *rhs.first)
-		return *lhs.second < *rhs.second;
-	return *lhs.first < *rhs.first;
-  }
+	bool operator() (const std::pair<K const *, V const *> lhs, 
+					const std::pair<K const *, V const *> rhs) const{
+		if(*lhs.first == *rhs.first)
+			return *lhs.second < *rhs.second;
+		return *lhs.first < *rhs.first;
+	}
 };
 
 struct PriorityQueueEmptyException : public std::exception{
@@ -32,44 +32,45 @@ struct PriorityQueueNotFoundException : public std::exception{
 		return "This element does not exist";
 	}
 };
+
 template <typename K, typename V> 
 struct  PriorityQueue {//TODO: zmienic na class
 	
 	public:
+	//mapa do trzymania wartości i kluczy
 	std::multimap <V, K> values;
+	//mapa ze wskaźnikiem na klucz (ułatwia wyszukiwanie) i iteratorem na pierwszą mapę
 	std::multimap <K const *, typename std::multimap <V, K>::const_iterator , classcomp<K> > iterators;
+	//multiset par <klucz *, wartość *> do porównań między kolejkami
 	std::multiset < std::pair<K const *, V const *> , classcomp2<K,V> > ordered;
 	
 	public:
 	// Konstruktor bezparametrowy tworzący pustą kolejkę [O(1)]
 	PriorityQueue(){}
 
-	// Konstruktor kopiujący [O(queue.size())]
+	// Konstruktor kopiujący [O(queue.size())], nie domyślny, aby uniknąć kopiowania wskaźników
 	PriorityQueue(const PriorityQueue<K, V>& queue){
 		PriorityQueue<K, V> temp;
 		for(auto it = queue.values.begin(); it != queue.values.end(); it++){
 			temp.insert(it->second, it->first);
 		}
 		this->swap(temp);
-	}
+	} //SILNA
 
 	// Konstruktor przenoszący [O(1)]
-	PriorityQueue(PriorityQueue<K, V>&& queue) = default;
+	PriorityQueue(PriorityQueue<K, V>&& queue) = default; //SILNA
 
-	~PriorityQueue(){
-		ordered.clear();
-		values.clear();
-		iterators.clear();
-	}
+	~PriorityQueue() = default; //NOTHROW
+	
 	// Operator przypisania [O(queue.size()) dla użycia P = Q, a O(1) dla użycia
 	// P = move(Q)]
 	PriorityQueue<K, V>& operator=(PriorityQueue<K, V>& queue){
 		PriorityQueue<K, V> temp(queue);
 		temp.swap(*this);
 		return *this;
-	}
+	} //SILNA
 
-	PriorityQueue<K, V>& operator=(PriorityQueue<K, V>&& queue) = default;
+	PriorityQueue<K, V>& operator=(PriorityQueue<K, V>&& queue) = default; //SILNA TODO: sprawdzic
 
 	// Metoda zwracająca true wtedy i tylko wtedy, gdy kolejka jest pusta [O(1)]
 	bool empty() const{
@@ -102,7 +103,7 @@ struct  PriorityQueue {//TODO: zmienic na class
 			ordered.erase(it2);
 			throw;
 		}
-	}
+	} //SILNA
 	
 
 	// Metody zwracające odpowiednio najmniejszą i największą wartość przechowywaną
@@ -112,7 +113,7 @@ struct  PriorityQueue {//TODO: zmienic na class
 		if(values.empty())
 			throw PriorityQueueEmptyException();
 		return values.begin()->first;
-	}	
+	} 
 	const V& maxValue() const{
 		if(values.empty())
 			throw PriorityQueueEmptyException();
@@ -140,18 +141,13 @@ struct  PriorityQueue {//TODO: zmienic na class
 			return false;
 		}
 		auto const it2 = ordered.find(std::make_pair(&key, &it->second->first));
-		assert(it2 != ordered.end());
+		
 		ordered.erase(it2);
 		values.erase(it->second);
 		iterators.erase(it);
 		return true;
-	}
-	void clean() {
-		values.clear();
-		iterators.clear();
-		ordered.clear();
-	}
-	// no-throw
+	} //SILNA
+
 	public:
 	// Metody usuwające z kolejki jedną parę o odpowiednio najmniejszej lub
 	// największej wartości [O(log size())]
@@ -159,12 +155,12 @@ struct  PriorityQueue {//TODO: zmienic na class
 		if(values.empty())
 			return;
 		deleteElem(values.begin()->second);
-	}
+	} //SILNA
 	void deleteMax(){
 		if(values.empty())
 			return;
 		deleteElem(values.rbegin()->second);
-	}
+	} //SILNA
 	
 	// Metoda zmieniająca dotychczasową wartość przypisaną kluczowi key na nową
 	// wartość value [O(log size())]; w przypadku gdy w kolejce nie ma pary
@@ -175,17 +171,25 @@ struct  PriorityQueue {//TODO: zmienic na class
 		if(!deleteElem(key))
 			throw PriorityQueueNotFoundException();
 		this->insert(key, value);
-	}
+	} //SILNA
 	
 	// Metoda scalająca zawartość kolejki z podaną kolejką queue; ta operacja usuwa
 	// wszystkie elementy z kolejki queue i wstawia je do kolejki *this
-	// [O(queue.size() * log (queue.size() + size()))]
+	// [O(size() + queue.size() * log (queue.size() + size()))]
 	void merge(PriorityQueue<K, V>& queue){
-		for(auto elem : queue.values){ //TODO: to jest niebezpieczne!
-			this->insert(elem.second, elem.first);	
+		PriorityQueue temp(*this);
+		try{
+			for(auto elem : queue.values){
+				this->insert(elem.second, elem.first);	
+			}
+			queue.ordered.clear();
+			queue.iterators.clear();
+			queue.values.clear();
+		}catch(...){
+			this->swap(temp);
+			throw;
 		}
-		queue.clean();
-	}
+	} //SILNA
 
 	// Metoda zamieniającą zawartość kolejki z podaną kolejką queue (tak jak
 	// większość kontenerów w bibliotece standardowej) [O(1)]
@@ -193,7 +197,7 @@ struct  PriorityQueue {//TODO: zmienic na class
 		this->values.swap(queue.values);
 		this->iterators.swap(queue.iterators);
 		this->ordered.swap(queue.ordered);
-	}
+	} //NOTHROW
 	template <typename S, typename T>
 	friend bool operator==(const PriorityQueue<S,T> &lhs, const PriorityQueue<S,T> &rhs);
 	template <typename S, typename T>
@@ -218,13 +222,11 @@ bool operator<(const PriorityQueue<K,V> &lhs, const PriorityQueue<K,V> &rhs){
 			return true;
 		else if(*i->first > *j->first)
 			return false;
-		else{
-			if(*i->second < *j->second)
-				return true;
-		}
+		else if(*i->second < *j->second)
+			return true;
 	}
 	return lhs.size() < rhs.size();
-}
+} //SILNA
 template<typename S, typename T>
 bool operator==(const PriorityQueue<S,T> &lhs, const PriorityQueue<S,T> &rhs){
 	return !(rhs < lhs) && !(lhs < rhs);
