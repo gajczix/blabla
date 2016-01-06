@@ -30,6 +30,7 @@ class qtest {
 		return 1;
 	}
 	friend bool operator<(const qtest& lhs, const qtest& rhs);
+	friend bool operator>(const qtest& lhs, const qtest& rhs);
 	friend bool operator==(const qtest& lhs, const qtest& rhs);
 };
 
@@ -59,6 +60,8 @@ class qtest2 {
 		return 1;
 	}
 	friend bool operator<(const qtest2& lhs, const qtest2& rhs);
+	friend bool operator>(const qtest2& lhs, const qtest2& rhs);
+	friend bool operator==(const qtest2& lhs, const qtest2& rhs);
 };
 
 bool operator<(const qtest2& lhs, const qtest2& rhs) {
@@ -66,9 +69,24 @@ bool operator<(const qtest2& lhs, const qtest2& rhs) {
 	return *lhs.p < *rhs.p;
 }
 
+bool operator>(const qtest2& lhs, const qtest2& rhs) {
+	lhs.secret();
+	return *lhs.p > *rhs.p;
+}
+
+bool operator==(const qtest2& lhs, const qtest2& rhs) {
+	lhs.secret();
+	return *lhs.p == *rhs.p;
+}
+
 bool operator<(const qtest& lhs, const qtest& rhs) {
 	lhs.secret();
 	return lhs.l < rhs.l;	
+}
+
+bool operator>(const qtest& lhs, const qtest& rhs) {
+	lhs.secret();
+	return lhs.l > rhs.l;	
 }
 
 bool operator==(const qtest& lhs, const qtest& rhs) {
@@ -145,6 +163,66 @@ int main() {
 	assert(kolejka4.values.size() == 0);
 	assert(kolejka4.iterators.size() == 0);
 	assert(kolejka4.ordered.size() == 0);
+
+	kolejka1.values.clear();
+	kolejka1.iterators.clear();
+	kolejka1.ordered.clear();
+	kolejka2.values.clear();
+	kolejka2.iterators.clear();
+	kolejka2.ordered.clear();
+
+	kolejka1.insert(asd0, qwe0);
+	kolejka1.insert(asd3, qwe3);
+	kolejka1.insert(asd5, qwe5);
+
+	kolejka2.insert(asd0, qwe0);
+	kolejka2.insert(asd3, qwe3);
+	kolejka2.insert(asd5, qwe3);
+	try {
+		if (kolejka1 == kolejka2);
+	}
+	catch(...) {
+		std::cout << "Error przy rownosci ==" << std::endl;
+		for (auto it: kolejka1.values)
+			std::cout << *it.first.p << " " << it.second.l << std::endl;
+		std::cout << "Rozmiar iterators: " <<  kolejka1.iterators.size() << std::endl;
+		std::cout << "Ordered: " <<  kolejka1.ordered.size() << std::endl;
+	}
 	
+	try {
+		if (kolejka1 <= kolejka2);
+	}
+	catch(...) {
+		std::cout << "Error przy mniejsze <" << std::endl;
+		for (auto it: kolejka1.values)
+			std::cout << *it.first.p << " " << it.second.l << std::endl;
+		std::cout << "Rozmiar iterators: " <<  kolejka1.iterators.size() << std::endl;
+		std::cout << "Ordered: " <<  kolejka1.ordered.size() << std::endl;
+	}
+	try {
+		kolejka1.deleteMin();
+		kolejka1.deleteMax();
+		assert(kolejka1 != kolejka2);
+	}
+	catch(...) {
+		std::cout << "Error przy usuwaniu" << std::endl;
+		for (auto it: kolejka1.values)
+			std::cout << *it.first.p << " " << it.second.l << std::endl;
+		std::cout << "Rozmiar iterators: " <<  kolejka1.iterators.size() << std::endl;
+		std::cout << "Ordered: " <<  kolejka1.ordered.size() << std::endl;
+	}
+
+	// ???
+	PriorityQueue<int *, int> kolej1;
+	int *k = new int;
+	int *s = new int;
+	*k = 8;
+	*s = 5;
+	kolej1.insert(k, *k);
+	kolej1.insert(s, *s);
+	kolej1.changeValue(k, 128);
+	for (auto it: kolej1.values)
+		std::cout << it.first << " " << it.second << std::endl;
+	// ???
 	return 0;
 }
