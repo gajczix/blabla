@@ -61,7 +61,7 @@ class  PriorityQueue {
 		return *this;
 	} //SILNA
 
-	PriorityQueue<K, V>& operator=(PriorityQueue<K, V>&& queue) = default; //SILNA TODO SPRAWDZ!
+	PriorityQueue<K, V>& operator=(PriorityQueue<K, V>&& queue) = default; //SILNA
 
 	// Metoda zwracająca true wtedy i tylko wtedy, gdy kolejka jest pusta [O(1)]
 	bool empty() const{
@@ -128,7 +128,6 @@ class  PriorityQueue {
 	void deleteElem(typename std::multimap <V  const *, K  const *, classcomp<V> >::iterator it){
 		auto range = iterators.equal_range(it->second);
 		auto it2 = ordered.find(std::make_pair(*it->second, *it->first));
-		
 		for(auto i = range.first; i != range.second; i++){
 			if(i->second == it){
 				iterators.erase(i);
@@ -137,9 +136,9 @@ class  PriorityQueue {
 		}
 		values.erase(it);
 		ordered.erase(it2);
-	}
+	} //SILNA
 	// Metody usuwające z kolejki jedną parę o odpowiednio najmniejszej lub
-	// największej wartości [O(log size())]
+	// największej wartości [O(n)]
 	void deleteMin(){
 		if(values.empty())
 			return;

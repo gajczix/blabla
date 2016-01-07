@@ -2,7 +2,7 @@
 #include <exception>
 #include <cassert>
 
-#include "test1.hh"
+#include "priorityqueue.hh"
 
 PriorityQueue<int, int> f(PriorityQueue<int, int> q)
 {
@@ -14,6 +14,7 @@ int main() {
     assert(P.empty());
 
     P.insert(1, 42);
+
     P.insert(2, 13);
     P.insert(2, 14);
 
@@ -21,14 +22,14 @@ int main() {
     assert(P.maxKey() == 1);
     assert(P.maxValue() == 42);
     assert(P.minKey() == 2);
+	
     assert(P.minValue() == 13);
     PriorityQueue<int, int> Q(f(P));
    Q.deleteMax();
     Q.deleteMin();
+
     Q.deleteMin();
-
     assert(Q.empty());
-
     PriorityQueue<int, int> R(Q);
 
     R.insert(1, 100);
