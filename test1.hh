@@ -154,13 +154,34 @@ struct  PriorityQueue {//TODO: zmienic na class
 	void deleteMin(){
 		if(values.empty())
 			return;
-		deleteElem(values.begin()->second);
+		auto it = values.begin();
+		auto range = iterators.equal_range(&it->second);
+		auto it2 = ordered.find(std::make_pair(&it->second, &it->first));
+		for(auto i = range.first; i != range.second; i++){
+			if(i->second == it){
+				iterators.erase(i);
+				break;
+			}
+		}
+		values.erase(it);
+		ordered.erase(it2);
 	} //SILNA
 	void deleteMax(){
 		if(values.empty())
 			return;
-		deleteElem(values.rbegin()->second);
-	} //SILNA
+		auto it = std::next(values.rbegin()).base();
+		auto range = iterators.equal_range(&it->second);
+		auto it2 = ordered.find(std::make_pair(&it->second, &it->first));
+		for(auto i = range.first; i != range.second; i++){
+			if(i->second == it){
+				iterators.erase(i);
+				break;
+			}
+		}
+		values.erase(it);
+		ordered.erase(it2);
+	}
+ //SILNA
 	
 	// Metoda zmieniająca dotychczasową wartość przypisaną kluczowi key na nową
 	// wartość value [O(log size())]; w przypadku gdy w kolejce nie ma pary
@@ -177,6 +198,8 @@ struct  PriorityQueue {//TODO: zmienic na class
 	// wszystkie elementy z kolejki queue i wstawia je do kolejki *this
 	// [O(size() + queue.size() * log (queue.size() + size()))]
 	void merge(PriorityQueue<K, V>& queue){
+		if(&*this == &queue )
+			return;
 		PriorityQueue temp(*this);
 		try{
 			for(auto elem : queue.values){
@@ -215,17 +238,19 @@ struct  PriorityQueue {//TODO: zmienic na class
 };
 template <typename K, typename V> //TODO: ladniej!
 bool operator<(const PriorityQueue<K,V> &lhs, const PriorityQueue<K,V> &rhs){
-	auto i = lhs.ordered.begin();
+/*	auto i = lhs.ordered.begin();
 	auto j = rhs.ordered.begin();
 	for(int k = 0; k < std::min(lhs.ordered.size(), rhs.ordered.size()); k++, i++, j++){
 		if(*i->first < *j->first)
 			return true;
-		else if(*i->first > *j->first)
+		else if(*j->first < *i->first)
 			return false;
 		else if(*i->second < *j->second)
 			return true;
 	}
 	return lhs.size() < rhs.size();
+*/
+return lhs.ordered < rhs.ordered;
 } //SILNA
 template<typename S, typename T>
 bool operator==(const PriorityQueue<S,T> &lhs, const PriorityQueue<S,T> &rhs){
